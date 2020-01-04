@@ -27,13 +27,25 @@ parser.add_argument("-o", "--outdir", dest="outdir",
                     help='example: -o <destination path>. default is current directory', type=str, default=os.getcwd())
 args = parser.parse_args()
 
-with youtube_dl.YoutubeDL(ydl_opt) as ydl:
-	meta_data = ydl.extract_info(str(args.weblink), download=False)
-	video_title = meta_data['title']
-	print('[user] Video name: {}'.format(video_title))
+try:
+	with youtube_dl.YoutubeDL(ydl_opt) as ydl:
+		meta_data = ydl.extract_info(str(args.weblink), download=False)
+		video_title = meta_data['title']
+		print('[user] Video name: {}'.format(video_title))
+except Exception as e:
+	print('[sys] Exception: {}'.format(e))
+	print('[usr] updating youtube_dl package using: pip install --upgrade youtube-dl')
+	try:
+		os.system('pip install  --upgrade youtube-dl')
+		print('[usr] youtube_dl updated. Again trying to download...')
+		with youtube_dl.YoutubeDL(ydl_opt) as ydl:
+			meta_data = ydl.extract_info(str(args.weblink), download=False)
+			video_title = meta_data['title']
+			print('[user] Video name: {}'.format(video_title))
+	except Exception as e2:
+		print('[sys] Exception: {}'.format(e2))
 
 outtmpl = video_title + '.%(ext)s'
-
 ydl_opts = {
 			'format'			: 'bestaudio/best',
 			'outtmpl'			: outtmpl,
